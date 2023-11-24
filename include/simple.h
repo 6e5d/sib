@@ -2,6 +2,7 @@
 #include <stdint.h>
 
 #include "../../simpleimg/include/simpleimg.h"
+#include "../../dmgrect/include/dmgrect.h"
 
 typedef struct {
 	// config
@@ -11,7 +12,6 @@ typedef struct {
 	float size_k;
 	float size_b;
 	uint8_t color[3]; // BGR
-	bool eraser; // if true color is ignored
 
 	// state
 	float px;
@@ -21,7 +21,6 @@ typedef struct {
 } SibSimple;
 
 void sib_simple_config(SibSimple *sib);
-void sib_simple_config_eraser(SibSimple *sib);
 void sib_simple_update(SibSimple *sib, Simpleimg *img,
-	float x, float y, float p);
+	Dmgrect damage, float x, float y, float p);
 void sib_simple_finish(SibSimple *sib);
