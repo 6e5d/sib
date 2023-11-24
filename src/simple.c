@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include "../../vwdlayer/include/ifdraw.h"
 #include "../../simpleimg/include/simpleimg.h"
 #include "../../dmgrect/include/dmgrect.h"
 #include "../include/simple.h"
@@ -76,55 +77,52 @@ static void fcircle(Simpleimg* img, Dmgrect *damage, float x, float y,
 	}
 }
 
-static void sib_simple_update2(SibSimple *sib, Simpleimg *img,
-	Dmgrect *damage, float x2, float y2, float p)
-{
-	float alpha1 = sib->alpha_k * sib->pp + sib->alpha_b;
-	float alpha2 = sib->alpha_k * sib->pp + sib->alpha_b;
-	float size1 = sib->size_k * sib->pp + sib->size_b;
-	float size2 = sib->size_k * sib->pp + sib->size_b;
-	float dx = x2 - sib->px;
-	float dy = y2 - sib->py;
+static void sib_simple_update(void *data, float pos[3], float pps[3]) {
+	Dmgrect damage;
+	SibSimple *sib = data;
+	float x = pos[0]; float y = pos[1]; float p = pos[2];
+	float px = pps[0]; float py = pps[1]; float pp = pps[2];
+	float alpha1 = sib->alpha_k * pp + sib->alpha_b;
+	float alpha2 = sib->alpha_k * p + sib->alpha_b;
+	float size1 = sib->size_k * pp + sib->size_b;
+	float size2 = sib->size_k * p + sib->size_b;
+	float dx = x - px;
+	float dy = y - py;
 	float ds = size2 - size1;
 	float da = alpha2 - alpha1;
 	float dist = sqrtf(dx * dx + dy * dy);
 	float t = 0.0;
 	while (t < 1.0f) {
-		float x = dx * t + sib->px;
-		float y = dy * t + sib->py;
-		float s = ds * t + size1;
-		float a = da * t + alpha1;
-		fcircle(img, damage, x, y, s, f01cap(a), sib->color);
-		float spacing = sib->spacing * s;
+		float x1 = dx * t + px;
+		float y1 = dy * t + py;
+		float s1 = ds * t + size1;
+		float a1 = da * t + alpha1;
+		fcircle(sib->canvas, &damage,
+			x1, y1, s1, f01cap(a1), sib->color);
+		float spacing = sib->spacing * s1;
 		if (spacing < sib->spacing) { spacing = sib->spacing; }
 		t += spacing / dist;
 	}
+	dmgrect_union(sib->pending, &damage);
 }
 
 // default config
 void sib_simple_config(SibSimple *sib) {
 	sib->spacing = 0.25f;
-	sib->alpha_k = 0.1f;
-	sib->alpha_b = 0.6f;
+	sib->alpha_k = 0.5f;
+	sib->alpha_b = 0.5f;
 	sib->size_k = 10.0f;
-	sib->size_b = 0.0;
-	sib->color[0] = 255;
+	sib->size_b = 0.0f;
+	sib->color[0] = 0;
 	sib->color[1] = 0;
 	sib->color[2] = 0;
 }
 
-void sib_simple_update(SibSimple *sib, Simpleimg *img,
-	Dmgrect *damage, float x, float y, float p)
-{
-	if (sib->drag) {
-		sib_simple_update2(sib, img, damage, x, y, p);
-	}
-	sib->px = x;
-	sib->py = y;
-	sib->pp = p;
-	sib->drag = true;
-}
+static void sib_simple_finish(void *data) {}
 
-void sib_simple_finish(SibSimple *sib) {
-	sib->drag = false;
+VwdlayerIfdraw sib_simple_ifdraw(SibSimple *sib) {
+	return (VwdlayerIfdraw) {
+		.end = sib_simple_finish,
+		.motion = sib_simple_update,
+	};
 }
