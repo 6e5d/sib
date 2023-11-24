@@ -22,5 +22,5 @@ typedef struct {
 
 void sib_simple_config(SibSimple *sib);
 void sib_simple_update(SibSimple *sib, Simpleimg *img,
-	Dmgrect damage, float x, float y, float p);
+	Dmgrect *damage, float x, float y, float p);
 void sib_simple_finish(SibSimple *sib);

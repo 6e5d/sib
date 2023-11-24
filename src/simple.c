@@ -26,12 +26,19 @@ static uint8_t f2u(float x) {
 	return (uint8_t)(x * 256.0f);
 }
 
-static uint32_t cap(float x, uint32_t y) {
+static uint32_t capd(float x, uint32_t y) {
 	if (x < 0) { return 0; }
 	if ((uint32_t)x >= y) {
 		return (y - 1);
 	}
-	return (uint32_t)x;
+	return (uint32_t)floorf(x);
+}
+static uint32_t capu(float x, uint32_t y) {
+	if (x < 0) { return 0; }
+	if ((uint32_t)x >= y) {
+		return (y - 1);
+	}
+	return (uint32_t)ceilf(x);
 }
 
 static void bcircle(Simpleimg* img, float x, float y,
@@ -50,16 +57,18 @@ static void bcircle(Simpleimg* img, float x, float y,
 	blend_alpha(p + 3, f2u(alpha));
 }
 
-static void fcircle(Simpleimg* img, float x, float y,
+static void fcircle(Simpleimg* img, Dmgrect *damage, float x, float y,
 	float size, float alpha, uint8_t color[3]) {
 	float xmaxf = ceilf(x + size);
 	float xminf = floorf(x - size);
 	float ymaxf = ceilf(y + size);
 	float yminf = floorf(y - size);
-	uint32_t xmax = cap(xmaxf, img->width);
-	uint32_t xmin = cap(xminf, img->width);
-	uint32_t ymax = cap(ymaxf, img->height);
-	uint32_t ymin = cap(yminf, img->height);
+	uint32_t xmax = capu(xmaxf, img->width);
+	uint32_t xmin = capd(xminf, img->width);
+	uint32_t ymax = capu(ymaxf, img->height);
+	uint32_t ymin = capd(yminf, img->height);
+	dmgrect_include(damage, (int32_t)xmin, (int32_t)ymin);
+	dmgrect_include(damage, (int32_t)xmax, (int32_t)ymax);
 	for (uint32_t i = xmin; i < xmax; i += 1) {
 		for (uint32_t j = ymin; j < ymax; j += 1) {
 			bcircle(img, x, y, i, j, size, alpha, color);
@@ -68,7 +77,7 @@ static void fcircle(Simpleimg* img, float x, float y,
 }
 
 static void sib_simple_update2(SibSimple *sib, Simpleimg *img,
-	Dmgrect damage, float x2, float y2, float p)
+	Dmgrect *damage, float x2, float y2, float p)
 {
 	float alpha1 = sib->alpha_k * sib->pp + sib->alpha_b;
 	float alpha2 = sib->alpha_k * sib->pp + sib->alpha_b;
@@ -85,7 +94,7 @@ static void sib_simple_update2(SibSimple *sib, Simpleimg *img,
 		float y = dy * t + sib->py;
 		float s = ds * t + size1;
 		float a = da * t + alpha1;
-		fcircle(img, x, y, s, f01cap(a), sib->color);
+		fcircle(img, damage, x, y, s, f01cap(a), sib->color);
 		float spacing = sib->spacing * s;
 		if (spacing < sib->spacing) { spacing = sib->spacing; }
 		t += spacing / dist;
@@ -105,9 +114,8 @@ void sib_simple_config(SibSimple *sib) {
 }
 
 void sib_simple_update(SibSimple *sib, Simpleimg *img,
-	Dmgrect damage, float x, float y, float p)
+	Dmgrect *damage, float x, float y, float p)
 {
-	memset(&damage, 0, sizeof(Dmgrect));
 	if (sib->drag) {
 		sib_simple_update2(sib, img, damage, x, y, p);
 	}
