@@ -114,9 +114,9 @@ void sib_simple_config(SibSimple *sib) {
 	sib->color[2] = 0;
 }
 
-static void sib_simple_finish(void *data) {}
+static void sib_simple_finish(void*) {}
 
-VwdlayerIfdraw sib_simple_ifdraw(SibSimple *sib) {
+VwdlayerIfdraw sib_simple_ifdraw(void) {
 	return (VwdlayerIfdraw) {
 		.end = sib_simple_finish,
 		.motion = sib_simple_update,
