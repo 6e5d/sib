@@ -1,13 +1,9 @@
-#include <stdio.h>
 #include <math.h>
-#include <stdint.h>
-#include <string.h>
-#include <stdbool.h>
 
-#include "../../vwdlayer/include/ifdraw.h"
+#include "../../vwdlayer/include/vwdlayer.h"
 #include "../../simpleimg/include/simpleimg.h"
 #include "../../dmgrect/include/dmgrect.h"
-#include "../include/simple.h"
+#include "../include/sib.h"
 
 static inline void blend_alpha(uint8_t *v, uint8_t w) {
 	if (w > *v) {*v = w;}
