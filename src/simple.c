@@ -24,18 +24,20 @@ static uint8_t f2u(float x) {
 }
 
 static uint32_t capd(float x, uint32_t y) {
-	if (x < 0) { return 0; }
-	if ((uint32_t)x >= y) {
+	float xf = floorf(x);
+	if (xf < 1.0f) { return 0; }
+	if (xf >= (float)y) {
 		return (y - 1);
 	}
-	return (uint32_t)floorf(x);
+	return (uint32_t)xf;
 }
 static uint32_t capu(float x, uint32_t y) {
-	if (x < 0) { return 0; }
-	if ((uint32_t)x >= y) {
+	float xc = ceilf(x);
+	if (xc <= 0.0f) { return 0; }
+	if (xc > (float)(y - 2)) {
 		return (y - 1);
 	}
-	return (uint32_t)ceilf(x);
+	return (uint32_t)xc;
 }
 
 static void bcircle(Simpleimg* img, float x, float y,
