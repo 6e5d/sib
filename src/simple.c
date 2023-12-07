@@ -101,7 +101,7 @@ static void sib_simple_update(void *data, float pos[3], float pps[3]) {
 		if (spacing < sib->spacing) { spacing = sib->spacing; }
 		t += spacing / dist;
 	}
-	dmgrect_union(sib->pending, &damage);
+	dmgrect_union(&sib->pending, &damage);
 }
 
 // default config
@@ -116,7 +116,10 @@ void sib_simple_config(SibSimple *sib) {
 	sib->color[2] = 0;
 }
 
-static void sib_simple_finish(void*) {}
+static void sib_simple_finish(void* data) {
+	SibSimple *sib = data;
+	sib->callback(sib->data);
+}
 
 VwdlayerIfdraw sib_simple_ifdraw(void) {
 	return (VwdlayerIfdraw) {

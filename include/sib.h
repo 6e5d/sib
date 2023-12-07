@@ -6,10 +6,12 @@
 #include "../../dmgrect/include/dmgrect.h"
 
 typedef struct {
+	void (*callback)(void *data);
+	void *data;
 	Simpleimg *canvas;
-	// may have multiple draw calls in 1 round
-	// then taken manually and reset to empty
-	Dmgrect *pending;
+	// pending: 1 frame may have multiple segments
+	// accum: 1 stroke may have many segments
+	Dmgrect pending;
 	// config
 	float spacing;
 	float alpha_k;
