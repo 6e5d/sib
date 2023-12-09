@@ -117,6 +117,17 @@ void sib_simple_config(SibSimple *sib) {
 	sib->color[2] = 0;
 }
 
+void sib_simple_config_eraser(SibSimple *sib) {
+	sib->spacing = 0.25f;
+	sib->alpha_k = 1.0f;
+	sib->alpha_b = 1.0f;
+	sib->size_k = 20.0f;
+	sib->size_b = 0.0f;
+	sib->color[0] = 0;
+	sib->color[1] = 0;
+	sib->color[2] = 0;
+}
+
 static void sib_simple_finish(void*) {}
 
 VwdlayerIfdraw sib_simple_ifdraw(void) {

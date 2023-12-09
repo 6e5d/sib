@@ -20,6 +20,7 @@ typedef struct {
 } SibSimple;
 
 void sib_simple_config(SibSimple *sib);
+void sib_simple_config_eraser(SibSimple *sib);
 VwdlayerIfdraw sib_simple_ifdraw(void);
 
 #endif
