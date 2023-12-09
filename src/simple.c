@@ -77,6 +77,7 @@ static void fcircle(Simpleimg* img, Dmgrect *damage, float x, float y,
 
 static void sib_simple_update(void *data, float pos[3], float pps[3]) {
 	Dmgrect damage;
+	dmgrect_init(&damage);
 	SibSimple *sib = data;
 	float x = pos[0]; float y = pos[1]; float p = pos[2];
 	float px = pps[0]; float py = pps[1]; float pp = pps[2];
@@ -116,10 +117,7 @@ void sib_simple_config(SibSimple *sib) {
 	sib->color[2] = 0;
 }
 
-static void sib_simple_finish(void* data) {
-	SibSimple *sib = data;
-	sib->callback(sib->data);
-}
+static void sib_simple_finish(void*) {}
 
 VwdlayerIfdraw sib_simple_ifdraw(void) {
 	return (VwdlayerIfdraw) {

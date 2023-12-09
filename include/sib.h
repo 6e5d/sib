@@ -6,8 +6,6 @@
 #include "../../dmgrect/include/dmgrect.h"
 
 typedef struct {
-	void (*callback)(void *data);
-	void *data;
 	Simpleimg *canvas;
 	// pending: 1 frame may have multiple segments
 	// accum: 1 stroke may have many segments
