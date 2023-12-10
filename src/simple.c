@@ -83,8 +83,8 @@ static void sib_simple_update(void *data, float pos[3], float pps[3]) {
 	float px = pps[0]; float py = pps[1]; float pp = pps[2];
 	float alpha1 = sib->alpha_k * pp + sib->alpha_b;
 	float alpha2 = sib->alpha_k * p + sib->alpha_b;
-	float size1 = sib->size_k * pp + sib->size_b;
-	float size2 = sib->size_k * p + sib->size_b;
+	float size1 = sib->size_scale * (sib->size_k * pp + sib->size_b);
+	float size2 = sib->size_scale * (sib->size_k * p + sib->size_b);
 	float dx = x - px;
 	float dy = y - py;
 	float ds = size2 - size1;
@@ -105,12 +105,19 @@ static void sib_simple_update(void *data, float pos[3], float pps[3]) {
 	dmgrect_union(&sib->pending, &damage);
 }
 
+static void sib_simple_primary(void *data, float dx) {
+	SibSimple *sib = data;
+	printf("changing primary setting %f\n", (double)dx);
+	sib->size_scale *= 1.0f + dx * 0.005f;
+}
+
 // default config
 void sib_simple_config(SibSimple *sib) {
 	sib->spacing = 0.25f;
 	sib->alpha_k = 0.5f;
 	sib->alpha_b = 0.5f;
 	sib->size_k = 10.0f;
+	sib->size_scale = 1.0f;
 	sib->size_b = 0.0f;
 	sib->color[0] = 0;
 	sib->color[1] = 0;
@@ -122,6 +129,7 @@ void sib_simple_config_eraser(SibSimple *sib) {
 	sib->alpha_k = 1.0f;
 	sib->alpha_b = 1.0f;
 	sib->size_k = 20.0f;
+	sib->size_scale = 1.0f;
 	sib->size_b = 0.0f;
 	sib->color[0] = 0;
 	sib->color[1] = 0;
@@ -134,5 +142,6 @@ VwdlayerIfdraw sib_simple_ifdraw(void) {
 	return (VwdlayerIfdraw) {
 		.end = sib_simple_finish,
 		.motion = sib_simple_update,
+		.primary = sib_simple_primary,
 	};
 }

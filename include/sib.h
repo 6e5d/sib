@@ -16,6 +16,7 @@ typedef struct {
 	float alpha_b;
 	float size_k;
 	float size_b;
+	float size_scale; // the primary setting is size
 	uint8_t color[3]; // BGR
 } SibSimple;
 
