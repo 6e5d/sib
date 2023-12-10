@@ -107,7 +107,6 @@ static void sib_simple_update(void *data, float pos[3], float pps[3]) {
 
 static void sib_simple_primary(void *data, float dx) {
 	SibSimple *sib = data;
-	printf("changing primary setting %f\n", (double)dx);
 	sib->size_scale *= 1.0f + dx * 0.005f;
 }
 
