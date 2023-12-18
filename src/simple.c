@@ -115,9 +115,9 @@ void sib_simple_config(SibSimple *sib) {
 	sib->spacing = 0.25f;
 	sib->alpha_k = 0.5f;
 	sib->alpha_b = 0.5f;
-	sib->size_k = 10.0f;
+	sib->size_k = 1.0f;
 	sib->size_scale = 1.0f;
-	sib->size_b = 0.0f;
+	sib->size_b = 1.0f;
 	sib->color[0] = 0;
 	sib->color[1] = 0;
 	sib->color[2] = 0;
