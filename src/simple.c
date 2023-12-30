@@ -1,11 +1,8 @@
 #include <math.h>
 
-#include "../../vwdlayer/include/vwdlayer.h"
-#include "../../simpleimg/include/simpleimg.h"
-#include "../../dmgrect/include/dmgrect.h"
 #include "../include/sib.h"
 
-static inline void blend_alpha(uint8_t *v, uint8_t w) {
+static void blend_alpha(uint8_t *v, uint8_t w) {
 	if (w > *v) {*v = w;}
 }
 
@@ -40,14 +37,14 @@ static uint32_t capu(float x, uint32_t y) {
 	return (uint32_t)xc;
 }
 
-static void bcircle(Simpleimg* img, float x, float y,
+static void bcircle(Simpleimg()* img, float x, float y,
 	uint32_t i, uint32_t j, float size, float alpha, uint8_t color[3])
 {
 	float dx = (float)i + 0.5f - x;
 	float dy = (float)j + 0.5f - y;
 	float dr = sqrtf(dx * dx + dy * dy) - size;
 	if (dr >= 0.5f) { return; }
-	uint8_t* p = simpleimg_offset(img, i, j);
+	uint8_t* p = simpleimg(offset)(img, i, j);
 	memcpy(p, color, sizeof(uint8_t) * 3);
 	if (fabsf(dr) < 0.5f) {
 		blend_alpha(p + 3, f2u(alpha * (0.5f - dr)));
@@ -56,7 +53,7 @@ static void bcircle(Simpleimg* img, float x, float y,
 	blend_alpha(p + 3, f2u(alpha));
 }
 
-static void fcircle(Simpleimg* img, Dmgrect *damage, float x, float y,
+static void fcircle(Simpleimg()* img, Dmgrect() *damage, float x, float y,
 	float size, float alpha, uint8_t color[3]) {
 	float xmaxf = ceilf(x + size);
 	float xminf = floorf(x - size);
@@ -66,8 +63,8 @@ static void fcircle(Simpleimg* img, Dmgrect *damage, float x, float y,
 	uint32_t xmin = capd(xminf, img->width);
 	uint32_t ymax = capu(ymaxf, img->height);
 	uint32_t ymin = capd(yminf, img->height);
-	dmgrect_include(damage, (int32_t)xmin, (int32_t)ymin);
-	dmgrect_include(damage, (int32_t)xmax, (int32_t)ymax);
+	dmgrect(include)(damage, (int32_t)xmin, (int32_t)ymin);
+	dmgrect(include)(damage, (int32_t)xmax, (int32_t)ymax);
 	for (uint32_t i = xmin; i < xmax; i += 1) {
 		for (uint32_t j = ymin; j < ymax; j += 1) {
 			bcircle(img, x, y, i, j, size, alpha, color);
@@ -75,10 +72,10 @@ static void fcircle(Simpleimg* img, Dmgrect *damage, float x, float y,
 	}
 }
 
-static void sib_simple_update(void *data, float pos[3], float pps[3]) {
-	Dmgrect damage;
-	dmgrect_init(&damage);
-	SibSimple *sib = data;
+static void sib(simple_update)(void *data, float pos[3], float pps[3]) {
+	Dmgrect() damage;
+	dmgrect(init)(&damage);
+	Sib(Simple) *sib = data;
 	float x = pos[0]; float y = pos[1]; float p = pos[2];
 	float px = pps[0]; float py = pps[1]; float pp = pps[2];
 	float alpha1 = sib->alpha_k * pp + sib->alpha_b;
@@ -102,16 +99,16 @@ static void sib_simple_update(void *data, float pos[3], float pps[3]) {
 		if (spacing < sib->spacing) { spacing = sib->spacing; }
 		t += spacing / dist;
 	}
-	dmgrect_union(&sib->pending, &damage);
+	dmgrect(union)(&sib->pending, &damage);
 }
 
-static void sib_simple_primary(void *data, float dx) {
-	SibSimple *sib = data;
+static void sib(simple_primary)(void *data, float dx) {
+	Sib(Simple) *sib = data;
 	sib->size_scale *= 1.0f + dx * 0.005f;
 }
 
 // default config
-void sib_simple_config(SibSimple *sib) {
+void sib(simple_config)(Sib(Simple) *sib) {
 	sib->spacing = 0.25f;
 	sib->alpha_k = 0.5f;
 	sib->alpha_b = 0.5f;
@@ -123,7 +120,7 @@ void sib_simple_config(SibSimple *sib) {
 	sib->color[2] = 0;
 }
 
-void sib_simple_config_eraser(SibSimple *sib) {
+void sib(simple_config_eraser)(Sib(Simple) *sib) {
 	sib->spacing = 0.25f;
 	sib->alpha_k = 1.0f;
 	sib->alpha_b = 1.0f;
@@ -135,12 +132,12 @@ void sib_simple_config_eraser(SibSimple *sib) {
 	sib->color[2] = 0;
 }
 
-static void sib_simple_finish(void*) {}
+static void sib(simple_finish)(void* unused) {}
 
-VwdlayerIfdraw sib_simple_ifdraw(void) {
-	return (VwdlayerIfdraw) {
-		.end = sib_simple_finish,
-		.motion = sib_simple_update,
-		.primary = sib_simple_primary,
+Vwdlayer(Ifdraw) sib(simple_ifdraw)(void) {
+	return (Vwdlayer(Ifdraw)) {
+		.end = sib(simple_finish),
+		.motion = sib(simple_update),
+		.primary = sib(simple_primary),
 	};
 }
